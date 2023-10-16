@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  
+  <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+  
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/underscore@latest/underscore-umd-min.js"></script>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evan Ray - NBA 3pt Analysis</title>
+</head>
+<body>
+  <nav class="navbar bg-body-tertiary">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1">NBA 3 Point Analysis</span>
+    </div>
+  </nav>
+  <div class="container-fluid">
+    <div id="data">
+      <p class="lead">
+        I used the <code>hoopR</code> package in R to download box score data with measures of player performance for all regular-season NBA games from the 2002-03 season to the 2022-23 season.
+      </p>
+      
+      <p>
+        Each record in this data set contains measures of performance for one player in one regular-season NBA game. I used the following variables in this analysis:
+        <ul>
+          <li>Athlete ID: a unique identifier for each player</li>
+          <li>Athlete Name: the player's name</li>
+          <li>Game Date: the date the game started</li>
+          <li>Season: the first year of the season the game was played. For example, if the game was played in the Winter 2002/2003 season, the season variable is 2002.</li>
+          <li>Number of 3 point shot attempts made by the player</li>
+          <li>Number of made 3 point shots</li>
+          <li>Home or away game</li>
+          <li>Opposing team</li>
+        </ul>
+        Throughout this analysis, I subset to games in seasons where a player attempted at least 20 3 point shots over the course of the season. This represents a (generous) minimum threshold for considering a player to be a potential scoring threat from 3-point range.
+      </p>
+      
+      <p>
+        My analyses will focus on a player's three point "shooting proportion", which is calculated as the ratio of the number of made three point shots to the number of attempted three point shots. This is equal to the shooting percentage divided by 100. The following interactive plots let you look at shooting proportions over time.
+      </p>
+      
+      <div class="row">
+        <div class="col-sm-3">
+          <div class=form-row mb-3">
+            <h5>Plot Options</h5>
+          </div>
+          <div class="form-row mb-3">
+            <label class="form-label" for="selectPlayer">Player:</label>
+            <select class="form-control" id="selectPlayer"></select>
+          </div>
+          <div class="form-row mb-3">
+            <label class="form-label" for="selectPlotBy">Plot by:</label>
+            <select class="form-control" id="selectPlotBy">
+              <option value="Season">Season</option>
+              <option value="Game">Game within Season</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-9" id="plotProp"></div>
+      </div>
+      
+      <p>
+        Based on these plots, we can make a few simple observations that are relevant for modeling and predicting three point shooting proportions at the level of a game:
+        <ul>
+          <li>Some players are consistently better than others over spans of multiple seasons.</li>
+          <li>There can be substantial variation in shooting percentage from one game to the next, even for a high-volume and high-percentage player like Ray Allen.</li>
+          <li>Most players take relatively few three point shots per game. This has two effects:
+            <ol>
+              <li>First, it contributes to the variability I remarked on in the previous point. If \(Y \sim \text{Binomial}(n, p)\) (where \(Y\) represents the number of successful shots in \(n\) independent attempts where each shot has success probability \(p\)) then the standard deviation of \(Y\) is \(\text{SD}(Y) = [n \cdot p \cdot (1 - p)]^{0.5}\). Dividing by \(n\), the observed shooting percentage \(p_{obs} = Y/n\) has standard deviation \([p \cdot (1 - p) / n]^{0.5}\). For example, when \(p = 0.4\) and \(n = 4\), this standard deviation is about 0.25, which is a fairly substantial amount of variation for a quantity that is restricted to be between 0 and 1.</li>
+              <li>Second, although we express shooting percentage on a continuous scale between 0 and 1, those proportions often fall at a discrete set of possible values. For instance, if \(n = 4\) shots were attempted, the only possible values of the observed shooting proportion \(p_{obs}\) are 0, 0.25, 0.5, 0.75, and 1.</li>
+            </ol>
+          </li>
+        </ul>
+      </p>
+    </div>
+  </div>
+  <script type="module" src="plots.js"></script>
+</body>
+</html>
